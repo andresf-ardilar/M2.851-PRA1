@@ -1,6 +1,8 @@
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+
+import re
 
 # WEB SCRAPPING FOR https://compras.tigo.com.co/movil/pospago
 driver = webdriver.Firefox()
@@ -23,7 +25,11 @@ print('plansList:', len(plans_list))
 prices = []
 taxes = []
 data_in_gb = []
-benefits = []
+benefits_all_text = []
+benefits_services = []
+
+benefits_service_list = ['Facebook', 'WhatsApp', 'Instagram', 'Amazon Music', 'Amazon Prime Video', 'Deezer',
+                         'Servicio preferencial', 'Voz', 'SMS', 'EEUU', 'Canadá', 'Puerto Rico']
 
 for plan_card in plans_list:
     # print("Value is: %s" % benefitsByPlan.get_attribute("data-gtm-productid"))
@@ -39,8 +45,26 @@ for plan_card in plans_list:
         print('benefit list: ', len(benefit_list))
         for benefit in benefit_list:
             print(' benefit: ', benefit.text)
-            taxes.append(benefit.text.strip())
+            benefits_all_text.append(benefit.text.strip())
+            benefit_services_final = ""
+            for benefit_type in benefits_service_list:
+                print("     benefit_type:", benefit_type)
+                if benefit_type in benefit.text:
+                    benefit_services_final += benefit_type + ','
 
+            isTetheringService = re.findall(r"\d+GB.+Internet", benefit.text)
+            if isTetheringService:
+                benefit_services_final += re.findall(r"\d+GB", benefit.text)[0]
+
+            isRoamingService = re.findall(r"\d+GB.+Roaming", benefit.text)
+            if isRoamingService:
+                benefit_services_final += re.findall(r"\d+GB", benefit.text)[0]
+
+            benefits_services.append(benefit_services_final)
+            print("         benefit_services_final: ", benefit_services_final)
+
+print("benefits", benefits_all_text)
+print("benefits_type", benefits_services)
 # soup = BeautifulSoup(driver.page_source, 'html.parser')
 # print(soup.prettify())
 #
