@@ -2,11 +2,12 @@
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+import datetime
 
 import re
 
 
-# Se inicializan las variables globales y el dirver de selenium con Firefox
+# Se inicializan las variables globales y el driver de selenium con Firefox
 def setup(url_to_scrap):
     global prices
     prices = []
@@ -22,6 +23,8 @@ def setup(url_to_scrap):
     benefits_services = []
     global benefits_types
     benefits_types = []
+    global offer_date
+    offer_date = []
 
     global driver
     driver = webdriver.Firefox()
@@ -30,11 +33,12 @@ def setup(url_to_scrap):
 
 # Se guardan los arreglos en un dataframe. Se exporta el dataframe a un csv
 def save_data_to_csv():
-    df = pd.DataFrame({'Price': prices, 'Taxes': taxes, 'Navigation data': data_in_gb,
-                       'Benefits (ori. text)': benefits_all_text, 'Benefits (services)': benefits_services,
-                       'Benefits (types)': benefits_types, 'Adquisition types': adquisition_types})
+    df = pd.DataFrame({'Price': prices, 'Tax': taxes, 'Navigation data': data_in_gb,
+                       'Benefits text': benefits_all_text, 'Benefits services': benefits_services,
+                       'Benefits types': benefits_types, 'Adquisition types': adquisition_types,
+                       'Offer date': offer_date})
 
-    df.to_csv('plans_ATL_TIGO.csv', index=False, encoding='utf-8')
+    df.to_csv('../dataset/plans_ATL.csv', index=False, encoding='utf-8')
 
 
 # Método principal que extrae el HTML con Selenium y se procesa iterando sobre la estructrua HTML
@@ -153,6 +157,9 @@ def scrap_data():
                 adquisition_types.append(buy_options_final)
                 print("         buy_option_final:", buy_options_final)
 
+                # Se establece la fecha de captura de datos (fecha en que corre el script)
+                offer_date.append(datetime.datetime.now(datetime.timezone.utc))
+
     # Se imprimen los arreglos para verificar que coincidan los tamaños de cada uno y sus respectivos valores
     print("prices:", len(prices), prices)
     print("taxes:", len(taxes), taxes)
@@ -161,6 +168,7 @@ def scrap_data():
     print("benefits_services:", len(benefits_services), benefits_services)
     print("benefits_types:", len(benefits_types), benefits_types)
     print("adquisition_types:", len(adquisition_types), adquisition_types)
+    print("offer_date:", len(offer_date), offer_date)
 
     # Se cierra el driver de selenium (cierra el navegador)
     driver.quit()
@@ -188,9 +196,17 @@ def replace_values():
         adquisition_types[index] = adquisition_type.replace("Pasar mi número a Tigo", "portación")
         adquisition_types[index] = adquisition_types[index].replace("Comprar una línea Nueva", "línea nueva")
         adquisition_types[index] = adquisition_types[index].replace("Cambiarme de prepago a pospago", "pre2pos")
-
         index += 1
     print("adquisition_types replaced:", len(adquisition_types), adquisition_types)
+
+    # Se reemplaza los miles del precio, se elimina el sigo "$" y se agrega la moneda en formato ISO 4217
+    index = 0
+    for price in prices:
+        prices[index] = price.replace("MIL", "")
+        prices[index] = prices[index].replace("$", "")
+        prices[index] = prices[index] + " COP"
+        index += 1
+    print("prices replaced:", len(prices), prices)
 
 
 # Se invoca cada una de las funciones para ejecutar el script completo
