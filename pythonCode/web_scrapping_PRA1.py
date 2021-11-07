@@ -361,7 +361,7 @@ def replace_values():
         prices[index] = prices[index].replace("$", "")
         prices[index] = prices[index].replace("mes", "")
         prices[index] = prices[index].replace(" ", "")
-        prices[index] = prices[index].replace("Normal: ", "")
+        prices[index] = prices[index].replace("Normal:", "")
         prices[index] = prices[index] + "COP"
         index += 1
     print("prices replaced:", len(prices), prices)
