@@ -386,9 +386,9 @@ def save_data_to_csv():
     df = pd.DataFrame({'Price': prices, 'Price (promo)': prices_promo, 'Tax': taxes, 'Navigation data': data_in_gb,
                        'Benefits text': benefits_all_text, 'Benefits services': benefits_services,
                        'Benefits types': benefits_types, 'Adquisition types': adquisition_types,
-                       'Offer date': offer_date})
+                       'Offer date': offer_date, 'Company': company})
 
-    df.to_csv('../dataset/plans_ATL.csv', index=False, encoding='utf-8', mode='a', header=False)
+    df.to_csv('dataset/plans_ATL.csv', index=False, encoding='utf-8', mode='a', header=False)
 
 
 # Elimina cualquier tag HTML de un string
